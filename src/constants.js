@@ -31,6 +31,7 @@ export const MISSILE_SMOKE_INTERVAL = 50;
 export const MISSILE_SMOKE_LIFETIME = 800;
 export const MAX_CHARGE_LEVEL = 3;
 export const MISSILE_CHARGE_TIME_PER_LEVEL = 1000;
+import { degToRad } from './utils.js';
 export const MISSILE_SPREAD_ANGLE_INCREMENT = degToRad(10);
 export const MISSILE_PICKUP_CHANCE = 0.35;
 export const MISSILE_PICKUP_SIZE = 15;
@@ -79,12 +80,6 @@ export const MINELAYER_SPEED = 1.5;
 export const MINELAYER_AVOID_RADIUS = 150;
 export const MINELAYER_MINE_COOLDOWN = 2000;
 
-// Re-add degToRad here as it's used within this file.
-// It will also be in utils.js for other files to use.
-function degToRad(d) {
-    return d * Math.PI / 180;
-}
-
 // --- Difficulty Settings Object ---
 export const DIFFICULTY_SETTINGS = {
     easy: {
@@ -98,8 +93,9 @@ export const DIFFICULTY_SETTINGS = {
         enemyThrust: 0.07,
         enemyShootCooldown: 2500,
         enemyMissileCooldown: 15000,
+        scoutSpawnInterval: 6000, // Scouts are more common on easy
         aceSpawnInterval: null,
-        corvetteSpawnInterval: 8000,
+        corvetteSpawnInterval: 10000, // Corvettes are less common
         corvetteHealth: 15,
         corvetteTurretTurnSpeed: 0.015,
         corvetteTurretShootCooldown: 2000,

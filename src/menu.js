@@ -1,14 +1,12 @@
 // src/menu.js
 // Handles all logic for the main menu page (index.html).
 
-import assetManager from './systems/AssetManager.js';
 import { gameState } from './state.js';
 import { setCanvasSize } from './utils.js';
 import { renderMenu } from './systems/RenderSystem.js';
 import { createMenuAsteroidBelt } from './entities/environment.js';
-// <<< THIS LINE IS FIXED
 import {
-    initAudio, startMenuMusic, setMusicVolume, setSfxVolume, isAudioInitialized, getAudioContext
+    initAudio, startMenuMusic, setMusicVolume, setSfxVolume, isAudioInitalized, getAudioContext
 } from './audio/audio.js';
 import {
     createGameModeButtons, selectGameMode, createTwoPlayerModeButtons, selectTwoPlayerMode,
@@ -30,7 +28,7 @@ const gameplayBackButton = document.getElementById('gameplayBackButton');
 
 function setupMenuEventListeners() {
     async function initAudioOnFirstInteraction() {
-        if (isAudioInitialized()) return; // <<< This now matches the corrected import
+        if (isAudioInitalized()) return;
         try {
             await initAudio();
             startMenuMusic();
@@ -46,7 +44,7 @@ function setupMenuEventListeners() {
         if (startButton.disabled) return;
         startButton.disabled = true;
 
-        if (!isAudioInitialized()) { // <<< This now matches the corrected import
+        if (!isAudioInitalized()) {
             await initAudioOnFirstInteraction();
         } else if (getAudioContext()?.state === 'suspended') {
             try { await getAudioContext().resume(); }
@@ -87,51 +85,31 @@ function menuLoop() {
 function initMenu() {
     setCanvasSize(canvas);
     
-    // Setup UI components and their default states (this is safe to do before loading)
-    createGameModeButtons(); selectGameMode(gameState.gameMode);
-    createTwoPlayerModeButtons(); selectTwoPlayerMode(gameState.twoPlayerMode);
-    createDifficultyButtons(); selectDifficulty(gameState.currentDifficulty);
-    createControlSchemeButtons(); selectControlScheme(gameState.currentControlScheme);
-    createShieldModeButtons(); selectShieldMode(gameState.shieldMode);
+    // Setup UI components and their default states
+    createGameModeButtons(); selectGameMode(gameState.gameMode ?? 'NEO');
+    createTwoPlayerModeButtons(); selectTwoPlayerMode(gameState.twoPlayerMode ?? 'CO_OP');
+    createDifficultyButtons(); selectDifficulty(gameState.currentDifficulty ?? 'normal');
+    createControlSchemeButtons(); selectControlScheme(gameState.currentControlScheme ?? 'TWIN_STICK');
+    createShieldModeButtons(); selectShieldMode(gameState.shieldMode ?? 'TOGGLE');
     
+    // Restore and display volume settings from localStorage if they exist
+    const savedMusicVol = localStorage.getItem('musicVolume');
+    const savedSfxVol = localStorage.getItem('sfxVolume');
+    if (savedMusicVol !== null) setMusicVolume(parseFloat(savedMusicVol));
+    if (savedSfxVol !== null) setSfxVolume(parseFloat(savedSfxVol));
+    updateMusicVolumeUI(gameState.musicVolume); // Ensure UI matches state
+    updateSfxVolumeUI(gameState.sfxVolume);     // Ensure UI matches state
+
     displayHighScores();
+
+    const firstVisibleButton = Array.from(document.querySelectorAll('#main-menu .menu-btn')).find(btn => btn.offsetParent !== null);
+    firstVisibleButton?.classList.add('selected');
+
     setupMenuEventListeners();
     createMenuAsteroidBelt();
-
-    // Start the main menu loop for background animation
-    requestAnimationFrame(menuLoop);
+    startMenuMusic(); // Attempt to start music if audio is already initialized
     
-    // --- New Loading Logic ---
-    const subTitle = document.getElementById('sub-title');
-    const startButton = document.getElementById('startButton');
-
-    assetManager.loadAll().then(() => {
-        console.log("All assets loaded successfully!");
-        
-        // Restore and display volume settings from localStorage
-        const savedMusicVol = localStorage.getItem('musicVolume');
-        const savedSfxVol = localStorage.getItem('sfxVolume');
-        if (savedMusicVol !== null) setMusicVolume(parseFloat(savedMusicVol));
-        if (savedSfxVol !== null) setSfxVolume(parseFloat(savedSfxVol));
-        updateMusicVolumeUI(gameState.musicVolume);
-        updateSfxVolumeUI(gameState.sfxVolume);
-
-        // Update the UI to show that loading is complete
-        subTitle.textContent = 'Select Options';
-        startButton.disabled = false;
-        
-        // Add the 'selected' class to the first button
-        const firstVisibleButton = Array.from(document.querySelectorAll('#main-menu .menu-btn')).find(btn => btn.offsetParent !== null);
-        firstVisibleButton?.classList.add('selected');
-        
-        // Attempt to start music only after assets are loaded and user has interacted
-        startMenuMusic();
-        
-    }).catch(error => {
-        console.error("Failed to load assets:", error);
-        subTitle.textContent = "Error: Failed to load assets. Please refresh.";
-        subTitle.style.color = "#ff0000";
-    });
+    requestAnimationFrame(menuLoop);
 }
 
 initMenu();

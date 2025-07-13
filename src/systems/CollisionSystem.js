@@ -2,7 +2,7 @@
 // Handles all collision detection and resolution logic for the game.
 
 import { gameState } from '../state.js';
-// The import from '../main.js' has been removed.
+import { handlePlayerDeath, detonateMine } from '../main.js';
 import { destroyAsteroid } from '../entities/environment.js';
 import { PowerUp } from '../entities/environment.js';
 import { createExplosion } from '../fx/effects.js';
@@ -39,8 +39,7 @@ function handleShieldHit(player, knockback, damageSource) {
     player.thrust.y += knockback * Math.sin(angle);
 }
 
-// The function signature has been changed to accept the required functions.
-export function checkCollisions({ handlePlayerDeath, detonateMine }) {
+export function checkCollisions() {
     const { players, bullets, asteroids, missilePickups, missiles, powerUps, bombs, mines, enemies, enemyBullets, enemyMissiles, enemyRockets } = gameState;
 
     if (players.length === 0) return;

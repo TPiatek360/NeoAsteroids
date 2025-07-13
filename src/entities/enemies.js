@@ -52,9 +52,10 @@ function awardScoreToPlayer(amount, playerId) {
 }
 
 export class EnemyShip {
-    constructor() {
+    constructor(type = 'fighter') {
         const settings = DIFFICULTY_SETTINGS[gameState.currentDifficulty];
-        this.r = 20 / 2;
+        this.type = type;
+        this.r = type === 'scout' ? 12 : 20 / 2;
         if (Math.random() < 0.5) {
             this.x = Math.random() < 0.5 ? 0 - this.r : canvas.width + this.r;
             this.y = Math.random() * canvas.height;
@@ -71,6 +72,16 @@ export class EnemyShip {
         this.isDead = false;
         this.isBoss = false;
         this.targetPlayer = null;
+
+        if (this.type === 'scout') {
+            this.health = 1;
+            this.turnSpeed = 0.1;
+            this.thrustPower = 0.05;
+            this.state = 'evading';
+            this.stateTimer = 0;
+        } else {
+            this.health = 3;
+        }
     }
     draw() {
         ctx.strokeStyle = NEON_ORANGE;

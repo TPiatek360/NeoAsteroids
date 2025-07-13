@@ -69,6 +69,5 @@ assetManager.addAsset('gameMusic2', 'music/Voxel Revolution.mp3', assetManager.l
 assetManager.addAsset('gameMusic3', 'music/Bleeping Demo.mp3', assetManager.loadAudio);
 assetManager.addAsset('gameMusic4', 'music/Deep and Dirty.mp3', assetManager.loadAudio);
 assetManager.addAsset('gameMusic5', 'music/Raving Energy.mp3', assetManager.loadAudio);
-assetManager.addAsset('gameMusic6', 'music/Raving Energy (faster).mp3', assetManager.loadAudio);
 
 export default assetManager;

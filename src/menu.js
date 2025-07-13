@@ -86,11 +86,11 @@ function initMenu() {
     setCanvasSize(canvas);
     
     // Setup UI components and their default states
-    createGameModeButtons(); selectGameMode(gameState.gameMode);
-    createTwoPlayerModeButtons(); selectTwoPlayerMode(gameState.twoPlayerMode);
-    createDifficultyButtons(); selectDifficulty(gameState.currentDifficulty);
-    createControlSchemeButtons(); selectControlScheme(gameState.currentControlScheme);
-    createShieldModeButtons(); selectShieldMode(gameState.shieldMode);
+    createGameModeButtons(); selectGameMode(gameState.gameMode ?? 'NEO');
+    createTwoPlayerModeButtons(); selectTwoPlayerMode(gameState.twoPlayerMode ?? 'CO_OP');
+    createDifficultyButtons(); selectDifficulty(gameState.currentDifficulty ?? 'normal');
+    createControlSchemeButtons(); selectControlScheme(gameState.currentControlScheme ?? 'TWIN_STICK');
+    createShieldModeButtons(); selectShieldMode(gameState.shieldMode ?? 'TOGGLE');
     
     // Restore and display volume settings from localStorage if they exist
     const savedMusicVol = localStorage.getItem('musicVolume');

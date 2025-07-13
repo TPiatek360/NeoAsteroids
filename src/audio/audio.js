@@ -21,8 +21,7 @@ const GAME_TRACKS = [
     "music/Voxel Revolution.mp3",
     "music/Bleeping Demo.mp3",
     "music/Deep and Dirty.mp3",
-    "music/Raving Energy.mp3",
-    "music/Raving Energy (faster).mp3"
+    "music/Raving Energy.mp3"
 ];
 
 // audioState now lives in gameState for a single source of truth

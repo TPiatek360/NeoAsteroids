@@ -193,7 +193,7 @@ export function updateInitialEntryUI() {
 export function createGameModeButtons() {
     if (!gameModeSelectorEl) return;
     gameModeSelectorEl.innerHTML = '';
-    const modes = { 'singlePlayer': 'Single Player', 'twoPlayer': 'Two Player' };
+    const modes = { 'NEO': 'Neo', 'CLASSIC': 'Classic' };
     Object.keys(modes).forEach(key => {
         const button = document.createElement('button');
         button.textContent = modes[key];
@@ -292,7 +292,7 @@ export function toggleSoundMenu(show) { toggleMenu(mainMenuEl, soundMenuEl, show
 export function createShieldModeButtons() {
     if (!shieldModeSelectorEl) return;
     shieldModeSelectorEl.innerHTML = '';
-    const modes = { 'regenerate': 'Regenerating Shield', 'pickup': 'Shield Pickups Only' };
+    const modes = { 'TOGGLE': 'Toggle', 'HOLD': 'Hold' };
     Object.keys(modes).forEach(key => {
         const button = document.createElement('button');
         button.textContent = modes[key];

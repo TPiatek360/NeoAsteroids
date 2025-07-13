@@ -75,5 +75,5 @@ export function setSfxVolume(vol) {
 }
 
 export function getAudioContext() { return audioContext; }
-export function isAudioInitalized() { return isAudioInitialized; }
+export function isAudioInitialized() { return isAudioInitialized; }
 export function isThrustSoundActive() { return activeThrustSound !== null; }

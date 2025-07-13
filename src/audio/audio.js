@@ -5,7 +5,7 @@ import { updateMusicVolumeUI, updateSfxVolumeUI } from '../ui/ui.js';
 import { gameState } from '../state.js'; // Import gameState to access volume
 
 let audioContext;
-let isAudioInitialized = false;
+export let isAudioInitialized = false;
 let activeThrustSound = null;
 let noiseBuffer = null;
 let activeChargeSound = null;
@@ -75,5 +75,4 @@ export function setSfxVolume(vol) {
 }
 
 export function getAudioContext() { return audioContext; }
-export function isAudioInitialized() { return isAudioInitialized; }
 export function isThrustSoundActive() { return activeThrustSound !== null; }

@@ -7,305 +7,216 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&display=swap" rel="stylesheet">
-    <style>
-        body {
-            margin: 0;
-            overflow: hidden;
-            background-color: #0d021a;
-            font-family: 'Orbitron', sans-serif;
-            font-weight: 500;
-            color: #00ffff;
-        }
-        .hidden { display: none !important; }
-        canvas {
-            display: block;
-            position: absolute;
-            top: 0;
-            left: 0;
-            z-index: -1;
-        }
-        .start-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-        }
-        #main-title {
-            font-size: 4em;
-            text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff, 0 0 40px #ff00ff;
-        }
-        #sub-title {
-            font-size: 1.2em;
-            margin-top: 20px;
-            margin-bottom: 20px;
-            line-height: 1.5;
-            color: #ffaa00;
-            text-shadow: 0 0 5px #ffaa00;
-        }
-        
-        /* --- Menu System --- */
-        .menu-panel {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        #game-mode-selector,
-        #two-player-mode-selector,
-        #difficulty-selector,
-        #control-scheme-selector,
-        #shield-mode-selector {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            margin-bottom: 25px;
-        }
-        .menu-btn {
-            font-family: 'Orbitron', sans-serif;
-            font-weight: 500;
-            font-size: 1.3em;
-            padding: 8px 16px;
-            background-color: transparent;
-            cursor: pointer;
-            transition: all 0.3s;
-            width: 350px;
-        }
-        #game-mode-selector .menu-btn,
-        #two-player-mode-selector .menu-btn,
-        #difficulty-selector .menu-btn,
-        #control-scheme-selector .menu-btn,
-        #shield-mode-selector .menu-btn {
-            border: 2px solid #ffaa00;
-            color: #ffaa00;
-            text-shadow: 0 0 5px #ffaa00;
-        }
-        #game-mode-selector .menu-btn.chosen,
-        #two-player-mode-selector .menu-btn.chosen,
-        #difficulty-selector .menu-btn.chosen,
-        #control-scheme-selector .menu-btn.chosen,
-        #shield-mode-selector .menu-btn.chosen {
-            background-color: #ffaa00;
-            color: #0d021a;
-            text-shadow: none;
-        }
-        #startButton, #controlsSettingsButton, #soundSettingsButton, #gameplaySettingsButton, #backButton, #gameplayBackButton, #controlsBackButton {
-            margin-top: 10px;
-            font-size: 1.5em;
-            padding: 10px 20px;
-            border: 2px solid #00ffff;
-            color: #00ffff;
-            text-shadow: 0 0 5px #00ffff;
-        }
-        #controlsSettingsButton, #soundSettingsButton, #gameplaySettingsButton { font-size: 1.3em; width: 350px; }
-        #backButton, #gameplayBackButton, #controlsBackButton { margin-top: 30px; }
-        
-        .menu-btn.selected {
-            border-color: #00ffff !important;
-            animation: pulse-glow 1.5s ease-in-out infinite alternate;
-        }
-        #startButton:disabled {
-             cursor: wait;
-             opacity: 0.5;
-        }
-
-        /* --- Sound Sliders --- */
-        .slider-container { margin-bottom: 20px; }
-        .slider-container label { font-size: 1.2em; color: #ffaa00; text-shadow: 0 0 5px #ffaa00; }
-        .volume-slider {
-            width: 350px;
-            height: 25px;
-            border: 2px solid #ffaa00;
-            background-color: rgba(0,0,0,0.3);
-            margin-top: 5px;
-            position: relative;
-        }
-        .volume-fill {
-            height: 100%;
-            background-color: #ffaa00;
-            width: 100%; /* Default */
-        }
-        .volume-text {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: white;
-            text-shadow: 1px 1px 2px black;
-            pointer-events: none;
-        }
-
-        /* --- High Scores --- */
-        #high-score-list-container {
-            margin-top: 30px;
-            color: #7fff00;
-        }
-        #high-score-list-container h2 {
-            font-size: 1.5em;
-            text-shadow: 0 0 5px #7fff00;
-            margin-bottom: 10px;
-        }
-        #high-score-list {
-            columns: 2;
-            -webkit-columns: 2;
-            -moz-columns: 2;
-            column-gap: 30px;
-            list-style-type: decimal;
-            list-style-position: inside;
-            padding: 0;
-            margin: 0 auto;
-            max-width: 550px;
-            text-align: left;
-            font-size: 1.1em;
-            line-height: 1.6;
-        }
-        #high-score-list li {
-            text-shadow: 0 0 3px #7fff00;
-        }
-
-        #music-attribution {
-            position: absolute;
-            bottom: 10px;
-            width: 100%;
-            text-align: center;
-            font-size: 0.7em;
-            color: #7fff00;
-            text-shadow: 0 0 3px #7fff00;
-            line-height: 1.4;
-        }
-        @keyframes pulse-glow {
-            from { box-shadow: 0 0 12px #00ffff; }
-            to { box-shadow: 0 0 22px #00ffff, 0 0 5px #fff; }
-        }
-
-        /* --- Glitch Effect --- */
-        .glitch-effect {
-            position: relative;
-        }
-        .glitch-effect::before,
-        .glitch-effect::after {
-            content: attr(data-text);
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #0d021a;
-            overflow: hidden;
-            clip-path: inset(0 0 0 0);
-        }
-        .glitch-effect::before {
-            text-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff;
-            color: #ff00ff;
-            animation: glitch-burst-1 9s infinite linear;
-            z-index: -1;
-        }
-        .glitch-effect::after {
-            text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff;
-            color: #00ffff;
-            animation: glitch-burst-2 7s infinite linear;
-            z-index: -2;
-        }
-
-        @keyframes glitch-burst-1 {
-            0%, 97% { transform: translate(0, 0); clip-path: inset(0 0 0 0); }
-            97.5% { transform: translate(-5px, 2px); clip-path: inset(40% 0 45% 0); }
-            98% { transform: translate(5px, -3px); clip-path: inset(80% 0 5% 0); }
-            98.5% { transform: translate(-3px, 4px); clip-path: inset(20% 0 60% 0); }
-            99% { transform: translate(6px, -1px); clip-path: inset(55% 0 10% 0); }
-            99.5% { transform: translate(-7px, 0); clip-path: inset(0 0 0 0); }
-            100% { transform: translate(0, 0); clip-path: inset(0 0 0 0); }
-        }
-        @keyframes glitch-burst-2 {
-            0%, 98% { transform: translate(0, 0); clip-path: inset(0 0 0 0); }
-            98.5% { transform: translate(4px, -3px); clip-path: inset(0 0 70% 0); }
-            99% { transform: translate(-6px, 1px); clip-path: inset(40% 0 20% 0); }
-            99.5% { transform: translate(8px, -2px); clip-path: inset(75% 0 0 0); }
-            100% { transform: translate(0, 0); clip-path: inset(0 0 0 0); }
-        }
-    </style>
+    <link rel="stylesheet" href="style/main.css">
 </head>
-<body>
-    <canvas id="menuCanvas"></canvas>
+<body class="menu-page">
+    <div id="game-wrapper">
+        <canvas id="menuCanvas"></canvas>
+        <div id="crt-overlay"></div>
+        <div id="noise-overlay"></div>
 
-    <div id="ui-container" class="start-screen">
-        <div id="main-menu" class="menu-panel">
-            <h1 id="main-title" class="glitch-effect" data-text="NEON ASTEROIDS">NEON ASTEROIDS</h1>
-            <p id="sub-title">Loading Assets...</p>
-            
-            <p style="margin-bottom: 10px; color: #ffaa00; text-shadow: 0 0 5px #ffaa00;">GAME MODE</p>
-            <div id="game-mode-selector"></div>
-
-            <div id="two-player-mode-selector-container" class="hidden">
-                <p style="margin-bottom: 10px; color: #ffaa00; text-shadow: 0 0 5px #ffaa00;">TWO PLAYER MODE</p>
-                <div id="two-player-mode-selector"></div>
-            </div>
-            
-            <p style="margin-bottom: 10px; color: #ffaa00; text-shadow: 0 0 5px #ffaa00;">DIFFICULTY</p>
-            <div id="difficulty-selector"></div>
-
-            <button id="controlsSettingsButton" class="menu-btn">Controls</button>
-            <button id="gameplaySettingsButton" class="menu-btn">Gameplay Settings</button>
-            <button id="soundSettingsButton" class="menu-btn">Sound Settings</button>
-            <button id="startButton" class="menu-btn" disabled>PLAY</button>
-
-            <div id="high-score-list-container">
-                <h2>HIGH SCORES</h2>
-                <ol id="high-score-list"></ol>
-            </div>
+        <!-- NEW: Launching screen (hidden by default on menu page) -->
+        <div id="launching-screen" class="hidden">
+            <h1>LAUNCHING!</h1>
+            <div class="spinner"></div>
         </div>
 
-        <div id="controls-menu" class="menu-panel hidden">
-            <h1 style="font-size: 2.5em; margin-bottom: 40px;">Controls</h1>
-            
-            <p style="margin-bottom: 10px; color: #ffaa00;">GAMEPAD CONTROL SCHEME</p>
-            <div id="control-scheme-selector"></div>
-            
-            <button id="controlsBackButton" class="menu-btn">Back</button>
-        </div>
-        
-        <div id="gameplay-menu" class="menu-panel hidden">
-            <h1 style="font-size: 2.5em; margin-bottom: 40px;">Gameplay Settings</h1>
-            
-            <p style="margin-bottom: 10px; color: #ffaa00;">SHIELD MODE</p>
-            <div id="shield-mode-selector"></div>
-            
-            <button id="gameplayBackButton" class="menu-btn">Back</button>
-        </div>
-
-        <div id="sound-menu" class="menu-panel hidden">
-            <h1 style="font-size: 2.5em; margin-bottom: 40px;">Sound Settings</h1>
-            
-            <div class="slider-container">
-                <label>Music Volume</label>
-                <div id="music-volume-slider" class="volume-slider menu-btn">
-                    <div id="music-volume-fill"></div>
-                    <span id="music-volume-text"></span>
+        <div id="ui-container" class="start-screen">
+            <div id="main-menu" class="menu-panel">
+                <h1 id="main-title" class="glitch-effect" data-text="NEON ASTEROIDS">NEON ASTEROIDS</h1>
+                <p id="sub-title">Loading Assets…</p>
+                <button id="gameplaySettingsButton" class="menu-btn">Gameplay Options</button>
+                <button id="videoSettingsButton" class="menu-btn">Video Options</button>
+                <button id="soundSettingsButton" class="menu-btn">Sound Options</button>
+                <button id="controlsSettingsButton" class="menu-btn">Control Options</button>
+                <!-- START: New Button -->
+                <button id="dailyChallengeButton" class="menu-btn">Daily Challenge</button>
+                <!-- END: New Button -->
+                <button id="startButton" class="menu-btn" disabled>PLAY</button>
+                <div id="high-score-list-container">
+                    <h2>HIGH SCORES</h2>
+                    <ol id="high-score-list"></ol>
                 </div>
             </div>
 
-            <div class="slider-container">
-                <label>SFX Volume</label>
-                <div id="sfx-volume-slider" class="volume-slider menu-btn">
-                    <div id="sfx-volume-fill"></div>
-                    <span id="sfx-volume-text"></span>
+            <!-- Gameplay menu -->
+            <div id="gameplay-menu" class="menu-panel hidden">
+                <h1 style="font-size: 2.5em; margin-bottom: 20px;">Gameplay Settings</h1>
+                <div class="menu-section">
+                    <p class="menu-section-title">GAME TYPE</p>
+                    <div id="game-type-selector"></div>
                 </div>
+                <div class="menu-section">
+                    <p class="menu-section-title">PLAYERS</p>
+                    <div id="player-count-selector"></div>
+                </div>
+                <div id="two-player-mode-selector-container" class="menu-section hidden">
+                    <p class="menu-section-title">TWO PLAYER MODE</p>
+                    <div id="two-player-mode-selector"></div>
+                </div>
+                <div class="menu-section">
+                    <p class="menu-section-title">DIFFICULTY</p>
+                    <div id="difficulty-selector"></div>
+                </div>
+                <!-- NEW: Flight Model Selector -->
+                <div class="menu-section">
+                    <p class="menu-section-title">FLIGHT MODEL</p>
+                    <div id="flight-model-selector"></div>
+                </div>
+                <div class="menu-section">
+                    <p class="menu-section-title">SHIELD MODE</p>
+                    <div id="shield-mode-selector"></div>
+                </div>
+                <div class="menu-section">
+                    <p class="menu-section-title">ENEMY FIRE EFFECTS</p>
+                    <div id="enemy-fire-effect-selector"></div>
+                </div>
+                <button id="saveGameplayButton" class="menu-btn">Save Settings</button>
+                <button id="defaultsGameplayButton" class="menu-btn">Restore Defaults</button>
+                <button id="gameplayBackButton" class="menu-btn">Back</button>
+            </div>
+
+            <!-- Video menu -->
+            <div id="video-menu" class="menu-panel hidden">
+                <h1 style="font-size: 2.5em; margin-bottom: 40px;">Video Options</h1>
+                <div class="menu-section">
+                    <p class="menu-section-title">DISPLAY MODE</p>
+                    <div id="primary-color-mode-selector"></div>
+                </div>
+
+                <!-- NEW: Container for monochrome-specific options -->
+                <div id="monochrome-options-container" class="hidden">
+                    <div class="menu-section">
+                        <p class="menu-section-title">MONOCHROME TYPE</p>
+                        <div id="monochrome-type-selector"></div>
+                    </div>
+                    <div id="brightness-slider-container" class="slider-container">
+                        <label for="brightness-slider">Brightness <span id="brightness-value-text" class="value-text"></span></label>
+                        <div class="slider-wrapper">
+                            <div id="brightness-fill" class="slider-fill"></div>
+                            <input type="range" id="brightness-slider" class="custom-slider" min="0.7" max="1.8" step="0.05">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="menu-section">
+                    <p class="menu-section-title">SHADERS</p>
+                    <p class="menu-section-title" style="font-size: 0.9em; margin-top: -10px; margin-bottom: 10px;">CRT SCANLINES</p>
+                    <div id="crt-shader-selector"></div>
+                </div>
+                <div class="menu-section">
+                    <p class="menu-section-title" style="font-size: 0.9em; margin-top: 0px; margin-bottom: 10px;">FILM GRAIN & SCRATCHES</p>
+                    <div id="film-grain-selector"></div>
+                </div>
+                <div class="menu-section">
+                    <p class="menu-section-title" style="font-size: 0.9em; margin-top: 0px; margin-bottom: 10px;">CRT JITTER</p>
+                    <div id="jitter-selector"></div>
+                </div>
+                <div class="menu-section">
+                    <p class="menu-section-title" style="font-size: 0.9em; margin-top: 0px; margin-bottom: 10px;">PARALLAX STARFIELD</p>
+                    <div id="starfield-selector"></div>
+                </div>
+                <div class="slider-container">
+                    <label for="scanline-slider">Scanline Intensity <span id="scanline-value-text" class="value-text"></span></label>
+                    <div class="slider-wrapper">
+                        <div id="scanline-fill" class="slider-fill"></div>
+                        <input type="range" id="scanline-slider" class="custom-slider" min="0" max="1" step="0.05">
+                    </div>
+                </div>
+                <div class="slider-container">
+                    <label for="bloom-slider">Bloom <span id="bloom-value-text" class="value-text"></span></label>
+                    <div class="slider-wrapper">
+                        <div id="bloom-fill" class="slider-fill"></div>
+                        <input type="range" id="bloom-slider" class="custom-slider" min="0" max="5" step="0.1">
+                    </div>
+                </div>
+                <div class="slider-container">
+                    <label for="curvature-slider">Screen Curvature <span id="curvature-value-text" class="value-text"></span></label>
+                    <div class="slider-wrapper">
+                        <div id="curvature-fill" class="slider-fill"></div>
+                        <input type="range" id="curvature-slider" class="custom-slider" min="0" max="0.1" step="0.005">
+                    </div>
+                </div>
+                <div class="slider-container">
+                    <label for="persistence-slider">Phosphor Decay <span id="persistence-value-text" class="value-text"></span></label>
+                    <div class="slider-wrapper">
+                        <div id="persistence-fill" class="slider-fill"></div>
+                        <input type="range" id="persistence-slider" class="custom-slider" min="0" max="0.95" step="0.05">
+                    </div>
+                </div>
+                <button id="saveVideoButton" class="menu-btn">Save Settings</button>
+                <button id="defaultsVideoButton" class="menu-btn">Restore Defaults</button>
+                <button id="videoBackButton" class="menu-btn">Back</button>
+            </div>
+
+            <!-- Controls menu -->
+            <div id="controls-menu" class="menu-panel hidden">
+                <h1 style="font-size: 2.5em; margin-bottom: 40px;">Control Options</h1>
+                <p class="menu-section-title">GAMEPAD CONTROL SCHEME</p>
+                <div class="menu-section">
+                    <div id="control-scheme-selector"></div>
+                </div>
+                <button id="saveControlsButton" class="menu-btn">Save Settings</button>
+                <button id="defaultsControlsButton" class="menu-btn">Restore Defaults</button>
+                <button id="controlsBackButton" class="menu-btn">Back</button>
+            </div>
+
+            <!-- Sound menu -->
+            <div id="sound-menu" class="menu-panel hidden">
+                <h1 style="font-size: 2.5em; margin-bottom: 40px;">Sound Options</h1>
+                <div class="slider-container">
+                    <label for="music-volume-slider">Music Volume</label>
+                    <div class="slider-wrapper">
+                         <div id="music-volume-fill" class="slider-fill"></div>
+                         <span id="music-volume-text" class="volume-text"></span>
+                         <input type="range" id="music-volume-slider" class="custom-slider" min="0" max="1" step="0.05">
+                    </div>
+                </div>
+                <div class="slider-container">
+                    <label for="sfx-volume-slider">SFX Volume</label>
+                    <div class="slider-wrapper">
+                        <div id="sfx-volume-fill" class="slider-fill"></div>
+                        <span id="sfx-volume-text" class="volume-text"></span>
+                        <input type="range" id="sfx-volume-slider" class="custom-slider" min="0" max="1" step="0.05">
+                    </div>
+                </div>
+                <button id="saveSoundButton" class="menu-btn">Save Settings</button>
+                <button id="defaultsSoundButton" class="menu-btn">Restore Defaults</button>
+                <button id="backButton" class="menu-btn">Back</button>
             </div>
             
-            <button id="backButton" class="menu-btn">Back</button>
-        </div>
+            <!-- Campaign Slot Menu -->
+            <div id="campaign-menu" class="menu-panel hidden">
+                 <h1 style="font-size: 2.5em; margin-bottom: 20px;">Campaign Slots</h1>
+                 <button id="campaign-slot-1" class="menu-btn" data-slot="1"></button>
+                 <button id="campaign-slot-2" class="menu-btn" data-slot="2"></button>
+                 <button id="campaign-slot-3" class="menu-btn" data-slot="3"></button>
+                 <div id="campaign-player-selector" class="menu-section hidden" style="margin-top: 20px;">
+                    <p class="menu-section-title">SELECT PLAYERS</p>
+                    <button id="campaign-1p-button" class="menu-btn" data-players="1">1 Player</button>
+                    <button id="campaign-2p-button" class="menu-btn" data-players="2">2 Players</button>
+                 </div>
+                 <button id="campaignBackButton" class="menu-btn">Back</button>
+            </div>
 
-        <div id="music-attribution">
-            "Mesmerizing Galaxy", "Galactic Rap", "Voxel Revolution", "Bleeping Demo", "Deep and Dirty", "Raving Energy", "Raving Energy (faster)" By Kevin MacLeod (incompetech.com)<br>
-            Licensed under Creative Commons: By Attribution 4.0 License
-            http://creativecommons.org/licenses/by/4.0/
+            <!-- NEW: Custom Alert Screen -->
+            <div id="alert-screen" class="hidden">
+                <h1 id="alert-title">NOTICE</h1>
+                <p id="alert-message"></p>
+                <button id="alert-ok-button" class="menu-btn selected">OK</button>
+            </div>
+
+            <!-- Music attribution -->
+            <div id="music-attribution">
+                "Mesmerizing Galaxy", "Galactic Rap", "Voxel Revolution", "Bleeping Demo", "Deep and Dirty", "Raving Energy", "Raving Energy (faster)" By Kevin MacLeod (incompetech.com)<br>
+                Licensed under Creative Commons: By Attribution 4.0 License
+                http://creativecommons.org/licenses/by/4.0/
+            </div>
         </div>
     </div>
-
+    
+    <script src="src/campaign/campaignState.js" type="module"></script>
+    <script src="src/campaign/campaignManager.js" type="module"></script>
     <script src="src/menu.js" type="module"></script>
 </body>
 </html>

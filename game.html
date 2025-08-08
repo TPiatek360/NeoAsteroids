@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neon Asteroids</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style/main.css">
+</head>
+<body>
+    <div id="game-wrapper">
+        <canvas id="gameCanvas"></canvas>
+        <div id="crt-overlay"></div>
+        <div id="noise-overlay"></div>
+
+        <!-- UPDATED: Launching screen with combined elements -->
+        <div id="launching-screen">
+            <h1>LAUNCHING!</h1>
+            <div class="spinner"></div>
+            <div id="launch-console">
+                <div id="launch-log"></div>
+            </div>
+        </div>
+
+        <!--  UPDATED PAUSE SCREEN  -->
+        <div id="pause-screen" class="hidden">
+            <h1>PAUSED</h1>
+
+            <button id="return-to-game-btn" class="menu-btn">RETURN TO GAME</button>
+
+            <!-- NEW quick-access option buttons -->
+            <button id="pause-graphics-btn"    class="menu-btn">Graphics Options</button>
+            <button id="pause-sound-btn"       class="menu-btn">Sound Options</button>
+            <button id="pause-gameplay-btn"    class="menu-btn">Gameplay Options</button>
+
+            <button id="quit-to-menu-btn"      class="menu-btn">QUIT TO MENU</button>
+        </div>
+
+        <!-- Hangar screen for campaign mode -->
+        <div id="hangar-screen" class="hidden">
+            <h1>HANGAR & UPGRADES</h1>
+            
+            <!-- NEW: Wrapper for stats and shop -->
+            <div id="hangar-main-content">
+                <!-- This will contain player columns -->
+            </div>
+            
+            <button id="proceed-to-next-level-btn" class="menu-btn">PROCEED TO NEXT SECTOR</button>
+        </div>
+
+        <div id="dev-console-container" class="hidden">
+            <div id="dev-console-output"></div>
+            <input type="text" id="dev-console-input" placeholder="Enter command… (type 'help')">
+        </div>
+
+        <div id="game-over-screen" class="hidden">
+            <h1 id="game-over-title">GAME OVER</h1>
+            <p id="game-over-subtitle"></p>
+            <!-- BUG FIX: Corrected the button ID to be unique -->
+            <button id="game-over-return-btn" class="menu-btn">RETURN TO MENU</button>
+        </div>
+
+        <div id="initial-entry-screen" class="hidden">
+            <h1>HIGH SCORE!</h1>
+            <h2 id="final-score-display"></h2>
+            <p>Enter your initials</p>
+            <div id="initials-input">
+                <div class="initial-char-box" id="char-box-0">A</div>
+                <div class="initial-char-box" id="char-box-1">A</div>
+                <div class="initial-char-box" id="char-box-2">A</div>
+            </div>
+            <p class="initials-prompt">Use ↑↓ to change letter, ←→ to move. Press ENTER or (A) to submit.</p>
+        </div>
+
+    </div>
+
+    <script src="src/campaign/campaignState.js" type="module"></script>
+    <script src="src/campaign/campaignManager.js" type="module"></script>
+    <script src="src/main.js"       type="module"></script>
+</body>
+</html>

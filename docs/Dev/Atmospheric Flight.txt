@@ -1,0 +1,121 @@
+Of course. Your idea to make the core mechanics more data-driven and modular is the mark of a great game designer. An "atmospheric" flight model is a fantastic feature that will add a huge amount of skill and depth to the gameplay.
+
+Implementing it before the final boss is a perfect idea, as it will likely inform how the boss's attack patterns need to be designed to be challenging but fair for this new control scheme.
+
+Here is a detailed implementation plan for the Atmospheric Flight Model, formatted as a text file.
+
+---
+### **`Implementation Plan - Atmospheric Flight Model.txt`**
+
+**Project:** Neon Asteroids
+**Feature:** Atmospheric Flight Model
+**Synopsis:** This plan details the implementation of a new, advanced flight model that simulates atmospheric flight characteristics. Unlike the current models, this system will feature constant forward momentum, a disconnect between ship heading and velocity vector, and a direct relationship between speed, angle of attack, and maneuverability. The goal is to create a high-skill ceiling control scheme that rewards energy management and precise maneuvering.
+
+---
+
+### **Core Concepts**
+
+The new model will be governed by four primary forces:
+
+1.  **Engine Thrust:** A constant force pushing the ship forward *relative to its nose*. This is the source of the "constant forward motion."
+2.  **Lift:** A force that "pulls" the ship's momentum vector towards its nose. This is what allows the ship to turn. It is most effective at high speeds and moderate angles of attack.
+3.  **Drag:** A force that opposes the ship's current momentum. Drag increases exponentially as the angle of attack increases (i.e., making a sharp turn), causing the ship to slow down or "stall."
+4.  **Angle of Attack (AoA):** The critical angle between where the ship's nose is pointing and where the ship is actually going. Managing this angle is the core skill of the flight model.
+
+---
+
+### **Implementation Steps**
+
+**Step 1: Update Player State & Constants**
+
+We need to add new properties to the `Player` class and new constants to `constants.js` to manage the physics.
+
+*   **In `src/constants.js`:**
+    *   Add new `ATMOSPHERIC_FLIGHT` constants. These will be our tuning knobs.
+        ```javascript
+        export const ATMOSPHERIC_ENGINE_POWER = 0.04;   // The constant forward push from the engine.
+        export const ATMOSPHERIC_LIFT_COEFFICIENT = 0.02; // How effectively the ship "bites" into space to turn.
+        export const ATMOSPHERIC_DRAG_COEFFICIENT = 0.001; // How much drag is created by turning.
+        export const ATMOSPHERIC_MAX_TURN_RATE = 0.07;  // The base turn speed at optimal velocity.
+        export const ATMOSPHERIC_OPTIMAL_SPEED = 4.0;   // The speed at which the ship has the best turning ability.
+        ```
+
+*   **In `src/entities/Player.js`:**
+    *   The `Player` class already has all the necessary state variables (`x`, `y`, `a`, `rot`, `thrust`). No new variables are needed, which is great! We will simply be re-interpreting how we use them.
+
+**Step 2: Implement the Core Physics Logic**
+
+The main work will be in `Player.js`. We will create a new, dedicated function called `updateAtmosphericPhysics` to keep the logic clean and separate.
+
+*   **In `src/entities/Player.js`:**
+    *   Create a new private method `_updateAtmosphericPhysics(deltaTime)`.
+    *   In the main `update(deltaTime)` method, add a check for the flight model:
+        ```javascript
+        update(deltaTime) {
+            if (this.lives <= 0) return;
+
+            if (gameState.flightModel === 'atmospheric') { // NEW CHECK
+                this._updateAtmosphericPhysics(deltaTime);
+            } else {
+                // ... all of the existing arcade/newtonian physics logic goes here ...
+            }
+            // ... (shared logic like handling screen wrap, timers, etc.) ...
+        }
+        ```
+    *   **The `_updateAtmosphericPhysics` function will perform the following calculations in order:**
+
+        1.  **Get Current State:**
+            *   Calculate the ship's current `speed` (the magnitude of the `thrust` vector).
+            *   Calculate the `velocityAngle` (the angle of the `thrust` vector).
+
+        2.  **Calculate Angle of Attack (AoA):**
+            *   Find the difference between the ship's heading (`this.a`) and its actual direction of travel (`velocityAngle`). This value is the AoA.
+
+        3.  **Calculate Turn Rate based on Speed:**
+            *   The ship's ability to turn (`this.rot`) is dependent on its current speed.
+            *   `effectiveTurnRate = ATMOSPHERIC_MAX_TURN_RATE * (speed / ATMOSPHERIC_OPTIMAL_SPEED);`
+            *   Apply the player's input to `this.rot`, but cap it at the `effectiveTurnRate`. This makes turning sluggish at low speeds.
+
+        4.  **Calculate Forces:**
+            *   **Engine Thrust:** A constant force applied in the direction the nose is pointing (`this.a`).
+                `thrustForceX = ATMOSPHERIC_ENGINE_POWER * Math.cos(this.a);`
+                `thrustForceY = ATMOSPHERIC_ENGINE_POWER * Math.sin(this.a);`
+            *   **Drag Force:** A force that directly opposes the current velocity. Its magnitude increases dramatically with the AoA.
+                `dragMagnitude = speed * speed * Math.abs(AoA) * ATMOSPHERIC_DRAG_COEFFICIENT;`
+                `dragForceX = -this.thrust.x * dragMagnitude;`
+                `dragForceY = -this.thrust.y * dragMagnitude;`
+            *   **Lift Force:** A force that is perpendicular to the current velocity, pulling it towards the ship's heading.
+                `liftMagnitude = speed * speed * Math.sin(AoA) * ATMOSPHERIC_LIFT_COEFFICIENT;`
+                `liftForceX = liftMagnitude * Math.cos(velocityAngle + Math.PI / 2);`
+                `liftForceY = liftMagnitude * Math.sin(velocityAngle + Math.PI / 2);`
+
+        5.  **Apply All Forces:**
+            *   Sum the X and Y components of all three forces (Thrust, Drag, Lift) and add them to the `this.thrust` vector.
+
+**Step 3: UI and Game Integration**
+
+Finally, we need to add the option for the player to select this new model.
+
+*   **In `src/ui/ui.js`:**
+    *   Update the `createFlightModelButtons` function to include the new "Atmospheric" option.
+        ```javascript
+        export function createFlightModelButtons() { 
+            createButtons(flightModelSelectorEl, { 
+                'arcade': 'Arcade (Friction)', 
+                'newtonian': 'Newtonian (Inertia)',
+                'atmospheric': 'Atmospheric (Advanced)' // ADD THIS
+            }, selectFlightModel); 
+        }
+        ```
+    *   Do the same for the pause menu version of the buttons if it exists.
+
+**Step 4 (Post-Implementation): AI Adaptation**
+
+The current enemy AI is not designed for this flight model and would likely perform very poorly.
+*   **Initial Solution:** For now, the `EnemyShip` and `Ace` AI will be hard-coded to ignore the `gameState.flightModel` and continue using their existing Arcade physics.
+*   **Long-Term Goal (Phase 3 Polish):** Refactor the enemy AI's `turnTowards` method. When using the atmospheric model, instead of snapping to the target angle, the AI will need to learn to make gentler turns to avoid stalling and losing speed, making them more formidable opponents.
+
+---
+### **Summary & Next Steps**
+
+By following this plan, we will create a deeply engaging and skillful new way to play the game. The immediate next step would be to start with Step 1, adding the new constants, and then begin the core implementation of the `_updateAtmosphericPhysics` function in the `Player.js` file. This will be the most challenging but rewarding part of the process.

@@ -1,0 +1,6 @@
+The long-term vision would be a fully event-driven or data-driven architecture.
+Event-Driven: Instead of checking a flag, the input.js file would just fire an event like Event.dispatch('PLAYER_ROTATE', { direction: 'left' }). The "Reverse Controls" mutator would simply be a module that listens for that event and changes the direction to 'right' before the player ship ever receives it.
+Data-Driven: All core stats (player lives, damage values, enemy health) would be loaded from a central "rules" object. The "Glass Cannon" mutator would simply be a module that modifies that rules object before the game starts.
+This is a significant architectural refactor. So, I propose we do this in two phases:
+Phase 1 (Today): We will integrate the new mutators using our current, effective "flag-checking" system. This gets the new features working immediately and proves out their logic.
+Phase 2 (Future Task): Once we're happy with the mutators we have, we can plan a dedicated refactoring session to convert the engine to the more advanced, truly modular system you've envisioned.

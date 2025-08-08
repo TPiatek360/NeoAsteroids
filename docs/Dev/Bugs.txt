@@ -1,0 +1,6 @@
+Cruisers don't get hit by asteroids.
+EnemyShip doesn't shoot missiles ever. EVER.
+Ace ships not affected by stealth - would be nice to have a stealth OPTION for any ships.
+Planetoids not solid.
+Loading is slow - tries to load all music first, instead of just one song, I think.
+Eventually, ALL rules and constants should be mutator-based.

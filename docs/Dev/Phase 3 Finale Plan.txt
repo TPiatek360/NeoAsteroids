@@ -1,0 +1,94 @@
+### **Revised Implementation Plan: Phase 3 Finale**
+
+This updated plan details the implementation of the Daily Challenge system and the final, ring-shaped "bullet hell" space station boss.
+
+---
+
+### **Part A: Daily Challenges & Mutators (Step 3.4)**
+
+The goal is to create a dynamic, seeded game mode offering a unique, replayable challenge every day by combining various gameplay modifications.
+
+**Step 3.4.1: The `MutatorManager.js`**
+*   **Action:** Create the central library for all gameplay mutators.
+*   **Implementation:**
+    *   Create a new file: `src/campaign/MutatorManager.js`.
+    *   The manager will export a collection of mutator objects. Each object will contain:
+        *   A `run(state)` function that applies the modification.
+        *   A `description` string for the UI.
+        *   A `conflictsWith` array (e.g., `['NO_GUNS']`) to prevent illogical combinations.
+    *   **Initial Mutator List:**
+        *   `REVERSE_GRAVITY`: In `main.js`, `applyGravity()` will use a negative gravitational constant if this mutator is active, making planetoids push entities away.
+        *   `FLASHLIGHT_MODE`: In `RenderSystem.js`, a new function will be called to draw a black overlay with a "hole" clipped out around the player, creating the flashlight effect.
+        *   `STEALTH_ENEMIES`: In `enemies.js`, relevant enemies will get a new FSM state, `STEALTHED`. In this state, their opacity will fade to zero. They will only become fully visible when entering the `ATTACKING` state.
+        *   `REVERSE_CONTROLS`: In `input.js`, the input handling functions will swap their logic for rotation/thrust if this is active.
+        *   Plus other previously discussed ideas like "Glass Cannon," "All Aces," etc.
+
+**Step 3.4.2: Seeding and Selection Logic**
+*   **Action:** Implement the logic to generate a daily, deterministic set of mutators.
+*   **Implementation:**
+    *   In `menu.js`, when "Daily Challenge" is clicked, generate a seed from the current date (e.g., "YYYY-MM-DD").
+    *   Use a seeded pseudo-random number generator (PRNG) to select 2-3 mutators.
+    *   Before finalizing the list, check for conflicts using the `conflictsWith` property. If a conflict is found, the PRNG simply picks the next valid mutator in its sequence. This ensures combinations are always playable.
+
+**Step 3.4.3: UI and Game Flow Integration**
+*   **Action:** Add the UI entry point and in-game display for the Daily Challenge.
+*   **Implementation:**
+    *   Add a "Daily Challenge" button to the main menu UI in `index.html`.
+    *   The button's click handler in `menu.js` will trigger the seeding logic, prepare `gameSettings` with the chosen `activeMutators`, save to `sessionStorage`, and launch `game.html`.
+    *   `main.js` will apply the mutators from `sessionStorage` during the `loadGame()` sequence.
+    *   `HUDRenderer.js` will display the active mutators' descriptions on-screen at the start of the run.
+
+#### **Next-Step Questions for Part A:**
+
+1.  **Priorities:** Of the new mutator ideas (Reverse Gravity, Flashlight, Stealth Enemies), which one sounds most exciting to tackle first? Flashlight Mode seems like it would have the biggest visual impact.
+2.  **Scoring:** Do you agree that Daily Challenges should have a separate high-score board to make them competitive?
+
+---
+
+### **Part B: The Final Boss (Step 3.5)**
+
+The final encounter will be a large, rotating, ring-shaped space station, featuring "bullet hell" style attack patterns that test player maneuverability and endurance.
+
+**Step 3.5.1: The `SpaceStation` Class**
+*   **Action:** Create the final boss entity as a large, rotating ring.
+*   **Implementation:**
+    *   In `enemies.js`, create the `SpaceStation` class. It will be immobile (x, y do not change) but will have a `rotationSpeed` and a current `angle`. Its `update()` method will increment this angle.
+    *   The station's sections will be rectangular objects similar to the `CruiserSection`, positioned along its outer ring.
+    *   The `update()` method for each section must now calculate its world position based on the station's center `(x, y)` and its current `angle`, ensuring they rotate with the main body.
+
+**Step 3.5.2: Phased FSM "Bullet Hell" Encounter**
+*   **Action:** Design the boss's multi-phase AI with an emphasis on creating complex projectile patterns.
+*   **Implementation:**
+    *   **Phase 1: `SHIELDS_UP`**
+        *   *Goal:* Destroy the Shield Generators.
+        *   *Boss Behavior:* The station rotates slowly. Its turrets fire in **laid-back, wide-arcing, non-targeted patterns**, creating navigational challenges. A few turrets will take targeted shots, but the focus is on area denial, true to the "bullet hell" style.
+        *   *Transition:* Destroying the generators triggers a shield-collapse visual effect and transitions to Phase 2.
+    *   **Phase 2: `WEAPONS_FREE`**
+        *   *Goal:* Destroy Fighter Bays and Turret Control Systems.
+        *   *Boss Behavior:* Rotation speed increases slightly. **Projectile patterns become more intense and complex**, featuring spirals, crisscrossing lines, and faster salvos. The `FighterBay` sections will begin spawning `EnemyShip` squadrons.
+        *   *Transition:* Destroying these sections triggers hull explosions and transitions to Phase 3.
+    *   **Phase 3: `CORE_EXPOSED`**
+        *   *Goal:* Destroy the final Exposed Core section.
+        *   *Boss Behavior:* The station's rotation becomes erratic or stops entirely. The core begins its charge-up sequence for the final weapon.
+        *   *Final Attack:* The core will charge up with a deep, rising audio cue, then fire the **sustained, Corvette-wide neon-white energy beam**. The beam will track the player's position *at the moment of firing*, then lock in place for several seconds with a loud "BRRRRT" sound before fading. There will be a cooldown before it can fire again.
+
+**Step 3.5.3: New Weapon Type: `EnergyBeam`**
+*   **Action:** Create the class and logic for the boss's final beam weapon.
+*   **Implementation:**
+    *   Create an `EnergyBeam` class in `weapons.js`.
+    *   It will be defined by a start point (the core's position), an angle, a width, and a length (long enough to cross the screen).
+    *   Collision detection in `CollisionSystem.js` will need a new line-segment-vs-circle check to see if a player is intersecting the beam's area. Damage will be applied per frame for as long as the player is in contact with it.
+    *   The `draw()` method will render a crackling, glowing white rectangle.
+
+**Step 3.5.4: The "Zoomed-Out" Arena**
+*   **Action:** Create the sense of scale for the battle.
+*   **Implementation:** This remains a good idea. On mission start, `gameState.cameraScale` will be set to `0.7` (or similar). `RenderSystem.js` will apply this scaling to the context before drawing game entities, giving the player more room to maneuver and read the bullet patterns.
+
+**Step 3.5.5: Mission Integration**
+*   **Action:** Add the boss fight as the final campaign mission.
+*   **Implementation:** Add a `FinalBoss` entry to the `CHECKPOINT_MISSIONS` object in `MissionManager.js` for a high-numbered level (e.g., 20), which will call a `setupFinalBossMission()` function to orchestrate the encounter.
+
+#### **Next-Step Questions for Part B:**
+
+1.  **Bullet Patterns:** To really nail the "bullet hell" feel, can you describe one specific pattern for Phase 2? For example: "The four main turrets fire a continuous 5-shot spread that slowly rotates, creating a sweeping 'wall of bullets' that players must fly through."
+2.  **Visual Design:** What is the visual identity of the station itself? Is it sleek and advanced (like the Ace), or industrial and rugged (like the Corvette)? What colors should its hull plating be? This will help guide the art for the new assets.

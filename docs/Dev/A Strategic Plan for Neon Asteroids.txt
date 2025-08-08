@@ -1,0 +1,112 @@
+A Strategic Plan for Neon Asteroids: The Campaign Update
+Our goal is to build a robust, roguelite campaign mode by layering systems intelligently. We will start with the core loop, add content and variety, and then polish it with advanced AI and dynamic features.
+
+Phase 1: Building the Campaign Skeleton (The Core Loop)
+This phase is all about creating the fundamental structure that makes a "campaign run" possible. The goal is to have a basic, multi-level experience that saves progress between levels.
+Step 1.1: State Management & Game Type Integration
+Action: Solidify the distinction between game types. When a player selects "Campaign" from the menu, the game needs to load into a campaign-specific flow.
+Implementation:
+In menu.js, when launching a campaign, ensure the gameSettings saved to sessionStorage explicitly includes gameType: 'campaign'.
+In main.js, the loadGame() function already correctly reads this and sets gameState.gameType.
+Load the specific campaignRunData from sessionStorage to correctly set the starting level, player lives, etc., as you're already doing.
+
+Step 1.2: The Post-Mission "Hangar" Screen
+Action: Create the intermediary screen between levels. At this stage, it doesn't need a full shop—it just needs to exist to break the level -> next level loop.
+Implementation:
+Modify handleLevelEnd() in entities/environment.js. Instead of calling createAsteroidBelt() directly, it should now change the game state: gameState.status = 'hangar';.
+Create a new UI panel in game.html, #hangar-screen, similar to the #pause-screen. It should be hidden by default.
+When gameState.status becomes 'hangar', show this screen. It should display the level completed, score bonus, and a "Proceed to Next Level" button.
+
+Step 1.3: Basic Currency and Saving
+Action: Implement the earning of currency and save the state before the next level.
+Implementation:
+In campaignState.js, add currency: 0 to the player object template.
+When a level ends, convert the player's score into currency (player.currency += player.score). Reset the score for the next level.
+In main.js, when the "Proceed to Next Level" button in the hangar is clicked:
+Increment the campaign level (campaignData.currentLevel++).
+Update player stats in the campaign data object (lives, missiles, new currency total).
+Call saveCampaign() from campaignManager.js to write this new state to localStorage.
+Reset the game state for the new level (createAsteroidBelt(), etc.) and set gameState.status = 'playing';.
+
+
+
+Phase 2: Adding Flesh to the Bones (Content & Variety)
+With the core loop in place, we now make it interesting. This phase is about introducing the new mechanics and mission structures.
+Step 2.1: The Mission System
+Action: Create a manager to control level objectives beyond "destroy all asteroids."
+Implementation:
+Create a new file, src/campaign/MissionManager.js.
+At the start of a campaign level, the MissionManager is initialized. It decides the mission type for the current level (for now, it can be random).
+The MissionManager will have functions like setupAssaultMission() or setupDefenseMission(). These functions will spawn the necessary entities (e.g., a specific Cruiser, a friendly AlliedShip).
+The MissionManager will also have an update() function that checks for win/loss conditions (e.g., isTargetDead(), isAllyAlive()). This will run in the main gameLoop.
+For now, updateSpawning in SpawnSystem.js can be disabled during these missions.
+
+Step 2.2: Hand-Crafted "Checkpoint" Missions
+Action: Design the key story-beat missions for specific levels (e.g., Level 5, 10, 15).
+Implementation:
+Inside MissionManager.js, create a simple data structure (like a Map or Object) for checkpoint levels.
+Generated javascript
+      const CHECKPOINT_MISSIONS = {
+    5: { type: 'CorvetteAssault' },
+    10: { type: 'CruiserBoss' },
+    // etc.
+};
+   
+When a level starts, the MissionManager first checks if gameState.level is a key in this object. If so, it runs that specific hand-crafted mission. If not, it generates a random one.
+
+Step 2.3: Implement Planetoids
+Action: Introduce the first new major environmental mechanic.
+Implementation:
+Create a Planetoid class in entities/environment.js. It's a non-destructible asteroid.
+In the main gameLoop in main.js, add a new step: applyGravity().
+This function iterates through all planetoids and then through all physics-enabled entities (players, enemies, asteroids). It calculates a small gravity force vector and adds it to each entity's velocity.
+In CollisionSystem.js, add logic for entities to collide with and be destroyed by planetoids.
+
+Step 2.4: The Upgrade Store
+Action: Make the Hangar screen functional, allowing players to spend currency.
+Implementation:
+Expand the #hangar-screen UI in game.html with buttons for upgrades (e.g., "Repair Hull: 500c", "Buy Missiles: 100c", "+5% Thrust (Permanent): 5000c").
+Create a corresponding shop logic file or add to ui.js to handle the transactions, updating the player's stats in the campaignData object before it gets saved.
+Permanent unlocks (like new ships) should be saved to a separate localStorage key so they persist across all campaign slots.
+
+
+Phase 3: Advanced Systems and Long-Term Replayability
+Now we focus on the complex systems that will give the game its unique feel and endless challenge.
+Step 3.1: Upgrading the AI (FSM)
+Action: Refactor the enemy AI from simple if/else logic to a more robust Finite State Machine.
+Implementation:
+Pick one enemy to start with (e.g., Ace in enemies.js).
+Add this.state = 'SEARCHING'; to its constructor.
+In its update() method, replace this.aiLogic() with a switch (this.state) statement.
+Create functions for each state's behavior and transition logic: executeSearch(), executeAttack(), executeEvasion().
+Gradually refactor other enemies to use this more expressive and powerful system.
+
+Step 3.2: Squadron AI (Leader/Wingman)
+Action: Make enemies work together.
+Implementation:
+Once the FSM is in place, modify SpawnSystem.js to sometimes spawn enemies in a "squad." Designate one as a Leader and the others as Wingmen.
+A Wingman's FSM will have a primary state of FORMATION, where its goal is to maintain a position relative to its leader. It will only break formation to attack or evade under specific conditions. This makes flanking and coordinated attacks possible.
+
+Step 3.3: Implement Flight Models
+Action: Introduce the optional flight models as a core gameplay feature.
+Implementation:
+Add a "Flight Model" selector to the Gameplay Options menu (ui.js).
+Newtonian: Create the logic branch where, if this mode is selected, the game sets FRICTION = 1.0. The biggest challenge here will be teaching the FSM-based AI to use counter-thrust to brake.
+Atmospheric: Implement this as a special, unlockable ship type first. This contains the radical control changes to a single, rewarding piece of content.
+
+Step 3.4: Daily Challenges & Mutators
+Action: Build the system for daily, seeded runs with special rules.
+Implementation:
+Create a MutatorManager.js. A "mutator" is simply a function that temporarily alters game constants or logic (e.g., mutators.applyReverseControls()).
+The "Daily Challenge" button in the main menu will generate a mission using the day's date as a seed. This seed determines the mission type, layout, and which 1-3 mutators from the manager are active for that run.
+
+Step 3.5: The Final Boss
+Action: Design and build the capstone encounter for the campaign.
+Implementation:
+This is a "vertical slice" that uses all our new systems.
+Create a SpaceStation boss class in enemies.js that uses the multi-section logic from the Cruiser.
+Its AI will be a high-level FSM that controls its phases. Phase 1: SHIELDS_UP, Phase 2: WEAPONS_FREE, Phase 3: CORE_EXPOSED.
+The mission will take place on a larger, zoomed-out map to convey scale.
+It will spawn fighter squadrons using the new Squadron AI.
+
+By following this phased approach, you can systematically build towards your full vision, ensuring that you always have a playable and testable game at the end of each major step. Good luck, and have fun building

@@ -1,0 +1,4 @@
+Extra upgrades 
+- shield power (more energy, blocks more damage, depletes slower, etc.)
+- Better missiles (upgrade missile lock behavior, upgrade missile speed, upgrade missile maneuverability)
+- 

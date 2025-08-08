@@ -1,0 +1,979 @@
+/* ── Noise / Film Grain Overlay ─────────────────────────── */
+#noise-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1001; /* Must be on top of CRT overlay */
+    opacity: 0; /* Hidden by default */
+    transition: opacity 0.5s;
+    overflow: hidden; /* Important for the pseudo-elements */
+}
+
+#noise-overlay.noise-on {
+    opacity: 1;
+}
+
+/* The actual grain effect */
+#noise-overlay::before {
+    content: "";
+    position: absolute;
+    top: -100%;
+    left: -100%;
+    width: 300%;
+    height: 300%;
+    pointer-events: none;
+    background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNTAgMjUwIj4NCiAgPGZpbHRlciBpZD0ibm9pc2UtZmlsdGVyIj4NCiAgICA8ZmVUdXJidWxlbmNlIA0KICAgICAgIHR5cGU9ImZyYWN0YWxOb2lzZSIgDQogICAgICAgYmFzZUZyZXF1ZW5jeT0iMC42NSIgDQogICAgICAgbnVtT2N0YXZlcz0iMyIgDQogICAgICAgc3RpdGNoVGlsZXM9InN0aXRjaCIvPg0KICA8L2ZpbHRlcj4NCiAgPHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsdGVyPSJ1cmwoI25vaXNzLWZpbHRlcikiLz4NCjwvc3ZnPg==');
+    background-repeat: repeat;
+    opacity: 0.15;
+    animation: grain-pan 1s steps(10) infinite;
+}
+
+/* The scratches effect */
+#noise-overlay::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    background: 
+        repeating-linear-gradient(to right, transparent 0%, rgba(255, 255, 255, 0.03) 0.5%, transparent 1%),
+        repeating-linear-gradient(to bottom, transparent 0%, rgba(255, 255, 255, 0.02) 0.2%, transparent 0.4%);
+    opacity: 0;
+}
+
+#noise-overlay.noise-on::after {
+    animation: scratches 7s infinite linear;
+}
+
+/* Jitter animation for the game wrapper */
+#game-wrapper.jitter-on {
+    animation: jitter-effect 3.5s infinite linear;
+}
+
+@keyframes jitter-effect {
+    0%, 100% { transform: translateX(0); }
+    2% { transform: translateX(0.5px); }
+    4% { transform: translateX(-0.5px); }
+    15%, 19% { transform: translateX(0); }
+    20% { transform: translateX(-1px) }
+    21% { transform: translateX(1.5px) }
+    22% { transform: translateX(0) }
+    40%, 60% { transform: translateX(0) }
+    61% { transform: translateX(1px) }
+    62% { transform: translateX(-0.5px) }
+    63% { transform: translateX(0) }
+    85%, 98% { transform: translateX(0) }
+    99% { transform: translateX(-1.5px) }
+}
+
+
+@keyframes grain-pan {
+    0%, 100% { transform: translate(0, 0); }
+    10% { transform: translate(-5%, -10%); }
+    20% { transform: translate(-15%, 5%); }
+    30% { transform: translate(7%, -25%); }
+    40% { transform: translate(-5%, 25%); }
+    50% { transform: translate(-15%, 10%); }
+    60% { transform: translate(15%, 0%); }
+    70% { transform: translate(0%, 15%); }
+    80% { transform: translate(3%, 35%); }
+    90% { transform: translate(-10%, 10%); }
+}
+
+@keyframes scratches {
+    0% { clip-path: inset(40% 0 40% 0); transform: translate(-20px, -20px); opacity: 0;}
+    5% { clip-path: inset(10% 0 60% 0); transform: translate(20px, 20px); opacity: 0.4;}
+    10% { clip-path: inset(70% 0 15% 0); transform: translate(-20px, 0px); opacity: 0.6;}
+    15% { clip-path: inset(40% 0 20% 0); transform: translate(20px, 10px); opacity: 0.3;}
+    20% { clip-path: inset(50% 0 30% 0); transform: translate(-20px, 20px); opacity: 0.5;}
+    25% { clip-path: inset(20% 0 70% 0); transform: translate(20px, -20px); opacity: 0.7;}
+    30% { clip-path: inset(80% 0 5% 0); transform: translate(-20px, 10px); opacity: 0.4;}
+    35% { clip-path: inset(30% 0 50% 0); transform: translate(20px, -10px); opacity: 0.6;}
+    40% { clip-path: inset(10% 0 80% 0); transform: translate(-20px, 0px); opacity: 0.3;}
+    45% { clip-path: inset(60% 0 20% 0); transform: translate(20px, 20px); opacity: 0.5;}
+    50% { clip-path: inset(30% 0 40% 0); transform: translate(-20px, -20px); opacity: 0.7;}
+    55% { clip-path: inset(0% 0 90% 0); transform: translate(20px, 0px); opacity: 0.4;}
+    60% { clip-path: inset(50% 0 10% 0); transform: translate(-20px, 10px); opacity: 0.6;}
+    65% { clip-path: inset(20% 0 60% 0); transform: translate(20px, -10px); opacity: 0.3;}
+    70% { clip-path: inset(70% 0 20% 0); transform: translate(-20px, 20px); opacity: 0.5;}
+    75% { clip-path: inset(40% 0 30% 0); transform: translate(20px, -20px); opacity: 0.7;}
+    80% { clip-path: inset(10% 0 50% 0); transform: translate(-20px, 0px); opacity: 0.4;}
+    85% { clip-path: inset(50% 0 30% 0); transform: translate(20px, 10px); opacity: 0.6;}
+    90% { clip-path: inset(20% 0 40% 0); transform: translate(-20px, -10px); opacity: 0.3;}
+    95% { clip-path: inset(60% 0 10% 0); transform: translate(20px, 20px); opacity: 0.5;}
+    100% { clip-path: inset(30% 0 50% 0); transform: translate(-20px, 0px); opacity: 0;}
+}
+
+/* ── CSS Variables for VFX ────────────────────────────── */
+:root {
+    --scanline-intensity: 0.2;
+    --bloom-amount: 0px;
+    --curvature-amount: 0.03; 
+    --mono-brightness: 1.0;
+}
+
+/* ── page reset ─────────────────────────────────────────────── */
+html, body { margin: 0; height: 100%; overflow: hidden; }
+
+body {
+    background-color: #0d021a;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 500;
+    color: #00ffff;
+}
+
+/* BUG FIX: Scoping the centering styles to only the menu page */
+body.menu-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* SAFER LAYOUT: filter isolated to wrapper */
+#game-wrapper {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    transition: transform 0.2s, border-radius 0.2s;
+}
+
+#game-wrapper.bloom-on {
+    filter: blur(var(--bloom-amount));
+}
+#game-wrapper.curvature-on {
+    transform: scale(calc(1.0 - var(--curvature-amount)));
+    border-radius: calc(var(--curvature-amount) * 100vmin);
+}
+
+body.bw-mode #game-wrapper:not(.bloom-on) {
+    filter: grayscale(100%) brightness(var(--mono-brightness));
+}
+
+body.green-mode #game-wrapper:not(.bloom-on) {
+    filter: grayscale(100%) sepia(100%) hue-rotate(55deg) saturate(200%) brightness(var(--mono-brightness));
+}
+
+/* Amber mode styles */
+body.amber-mode #game-wrapper:not(.bloom-on) {
+    filter: grayscale(100%) sepia(100%) hue-rotate(-20deg) saturate(200%) brightness(var(--mono-brightness));
+}
+
+body.bw-mode #game-wrapper.bloom-on {
+    filter: grayscale(100%) brightness(var(--mono-brightness)) blur(var(--bloom-amount));
+}
+
+body.green-mode #game-wrapper.bloom-on {
+    filter: grayscale(100%) sepia(100%) hue-rotate(55deg) saturate(200%) blur(var(--bloom-amount)) brightness(var(--mono-brightness));
+}
+
+body.amber-mode #game-wrapper.bloom-on {
+    filter: grayscale(100%) sepia(100%) hue-rotate(-20deg) saturate(200%) blur(var(--bloom-amount)) brightness(var(--mono-brightness));
+}
+
+canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+}
+
+#crt-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1000;
+    display: none;
+    background-image: repeating-linear-gradient(to bottom, 
+        rgba(18, 16, 16, 0), 
+        rgba(18, 16, 16, 0) 1px, 
+        rgba(0, 0, 0, var(--scanline-intensity)) 3px
+    );
+    background-size: 100% 3px;
+}
+
+#crt-overlay.crt-on {
+    display: block;
+}
+
+.hidden { display: none !important; }
+
+/* ── overlays (game.html) ────────────────────────────────── */
+#game-over-screen,
+#pause-screen,
+#launching-screen,
+#hangar-screen,
+/* FIX: Apply overlay styles to the outer wrapper class, not the inner panel */
+.pause-options-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    background-color: rgba(13, 2, 26, 0.9);
+    z-index: 10;
+}
+
+/* Ensure launching screen is on top of everything */
+#launching-screen {
+    z-index: 9999;
+    background-color: rgba(13, 2, 26, 0.95);
+    transition: opacity 0.5s ease-out;
+    gap: 20px; /* Space between title/spinner and console */
+}
+
+/* Restored title and spinner styles */
+#launching-screen h1 {
+    font-size: 4em;
+    color: #00ffff;
+    text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff;
+    margin-bottom: 20px; /* Spacing below the title */
+}
+
+.spinner {
+    width: 0;
+    height: 0;
+    border-left: 40px solid transparent;
+    border-right: 40px solid transparent;
+    border-bottom: 60px solid #ffaa00;
+    animation: spin 2s linear infinite;
+    filter: drop-shadow(0 5px 15px #ffaa00);
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* UPDATED: Styles for the launch console window */
+#launch-console {
+    width: 80%;
+    max-width: 700px;
+    height: 350px;
+    background-color: rgba(0, 0, 0, 0.7);
+    border: 3px solid #ffaa00;
+    box-shadow: 0 0 15px #ffaa00 inset;
+    padding: 20px;
+    box-sizing: border-box;
+    overflow: hidden;
+    font-family: 'Orbitron', monospace;
+    text-align: left; /* Align text to the left */
+}
+
+#launch-log {
+    height: 100%;
+    overflow-y: auto;
+    color: #7fff00;
+    text-shadow: 0 0 5px #7fff00;
+    font-size: 1.1em;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+#launch-log::-webkit-scrollbar {
+    display: none;
+}
+
+#launch-log .cursor {
+    display: inline-block;
+    background-color: #7fff00;
+    width: 10px;
+    height: 1.2em;
+    margin-left: 5px;
+    animation: blink 1s steps(2) infinite;
+    vertical-align: middle;
+}
+
+@keyframes blink {
+    0% { opacity: 1; }
+    50% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
+.progress-bar-container {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    margin: 5px 0;
+}
+
+.progress-bar {
+    border: 1px solid #7fff00;
+    width: 70%;
+    height: 20px;
+    padding: 2px;
+    background-color: transparent;
+}
+
+.progress-bar-fill {
+    background-color: #7fff00;
+    width: 0%;
+    height: 100%;
+    transition: width 0.1s linear;
+}
+
+.progress-bar-text {
+    margin-left: 10px;
+}
+
+
+#pause-screen h1 {
+    font-size: 4em;
+    color: #ffaa00;
+    text-shadow: 0 0 10px #ffaa00, 0 0 20px #ffaa00;
+    animation: pulse-glow-orange 2s ease-in-out infinite alternate;
+    margin-bottom: 20px;
+}
+
+#game-over-title {
+    font-size: 4em;
+    text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff, 0 0 40px #ff00ff;
+}
+
+#game-over-subtitle {
+    font-size: 1.2em;
+    margin-top: 20px;
+    margin-bottom: 40px;
+    line-height: 1.5;
+    color: #ffaa00;
+    text-shadow: 0 0 5px #ffaa00;
+}
+
+/* BUG FIX: Grouped the return buttons to share styles */
+#return-to-menu-btn,
+#game-over-return-btn,
+#proceed-to-next-level-btn {
+    border: 2px solid #00ffff;
+    color: #00ffff;
+    text-shadow: 0 0 5px #00ffff;
+}
+
+#quit-to-menu-btn,
+#return-to-game-btn {
+    margin-top: 20px;
+    border: 2px solid #ffaa00;
+    color: #ffaa00;
+    text-shadow: 0 0 5px #ffaa00;
+}
+
+#quit-to-menu-btn.selected,
+#return-to-game-btn.selected {
+     border-color: #ffaa00;
+     animation: pulse-glow-orange 1.5s ease-in-out infinite alternate;
+}
+
+/* Style for pause menu option buttons */
+#pause-graphics-btn,
+#pause-sound-btn,
+#pause-gameplay-btn {
+    margin-top: 10px;
+    border: 2px solid #00ffff;
+    color: #00ffff;
+    text-shadow: 0 0 5px #00ffff;
+}
+
+#initial-entry-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(13, 2, 26, 0.9);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+}
+
+#initial-entry-screen h1 {
+    font-size: 3em;
+    color: #ffaa00;
+    text-shadow: 0 0 10px #ffaa00;
+}
+
+#final-score-display {
+    font-size: 2em;
+    color: #00ffff;
+    text-shadow: 0 0 8px #00ffff;
+    margin: 10px 0 20px 0;
+}
+
+#initials-input {
+    display: flex;
+    gap: 20px;
+    margin: 30px 0;
+}
+
+.initial-char-box {
+    width: 60px;
+    height: 80px;
+    border: 3px solid #00ffff;
+    font-size: 4em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.initial-char-box.selected {
+    animation: pulse-glow 1.5s ease-in-out infinite alternate;
+}
+
+.initials-prompt {
+    font-size: 1em;
+    color: #ffaa00;
+}
+
+/* --- HANGAR & SHOP SCREEN STYLES --- */
+#hangar-screen h1 {
+    font-size: 2.5em;
+    color: #7fff00;
+    text-shadow: 0 0 10px #7fff00, 0 0 20px #7fff00;
+    margin-bottom: 20px;
+}
+
+#hangar-main-content {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+    width: 90%;
+    max-width: 1000px;
+    justify-content: center;
+}
+
+.hangar-player-column {
+    border: 2px solid #00ffff;
+    padding: 20px;
+    flex-basis: 400px; /* Base width for each column */
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.player-stats h2 {
+    color: #00ffff;
+    text-shadow: 0 0 8px #00ffff;
+    margin-bottom: 10px;
+    font-size: 1.5em;
+}
+
+.player-stats p {
+    color: #ffaa00;
+    text-shadow: 0 0 5px #ffaa00;
+    font-size: 1.2em;
+    line-height: 1.6;
+}
+
+.player-stats .currency-display {
+    color: #7fff00;
+    text-shadow: 0 0 8px #7fff00;
+    font-size: 1.5em;
+    margin-top: 10px;
+}
+
+.hangar-shop {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.shop-btn {
+    position: relative;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 500;
+    font-size: 1.1em;
+    padding: 8px 16px;
+    background-color: transparent;
+    cursor: pointer;
+    transition: all 0.3s;
+    border: 2px solid #ffaa00;
+    color: #ffaa00;
+    text-shadow: 0 0 5px #ffaa00;
+    text-align: left;
+}
+
+.shop-btn::after {
+    content: attr(data-cost);
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #00ffff;
+}
+
+.shop-btn.selected {
+    border-color: #00ffff !important;
+    animation: pulse-glow 1.5s ease-in-out infinite alternate;
+}
+
+.shop-btn:disabled {
+    border-color: #555;
+    color: #555;
+    text-shadow: none;
+    cursor: not-allowed;
+}
+
+.shop-btn:disabled::after {
+    color: #555;
+}
+
+#proceed-to-next-level-btn {
+    margin-top: 20px;
+    font-size: 1.5em;
+    padding: 10px 20px;
+}
+/* --- END HANGAR STYLES --- */
+
+
+#dev-console-container {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 200;
+    padding: 10px 20px;
+    box-sizing: border-box;
+    border-top: 2px solid #ffaa00;
+}
+
+#dev-console-input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    color: #7fff00;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.2em;
+    outline: none;
+    text-shadow: 0 0 5px #7fff00;
+}
+
+#dev-console-output {
+    color: #ffaa00;
+    font-size: 0.9em;
+    min-height: 1.2em;
+    margin-bottom: 5px;
+    line-height: 1.4;
+    white-space: pre-wrap;
+}
+
+/* ── menu layout (index.html) ────────────────────────── */
+.start-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    z-index: 1;
+}
+
+#main-title {
+    font-size: 4em;
+    text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff, 0 0 40px #ff00ff;
+}
+
+#sub-title {
+    font-size: 1.2em;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    line-height: 1.5;
+    color: #ffaa00;
+    text-shadow: 0 0 5px #ffaa00;
+    transition: color 0.3s, text-shadow 0.3s;
+}
+
+/* ── menu system (index.html) ────────────────────────── */
+.menu-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-height: 85vh;
+    overflow-y: auto;
+    padding: 20px 30px 20px 20px;
+    box-sizing: border-box;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.menu-panel::-webkit-scrollbar {
+    display: none;
+}
+
+.menu-section {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.menu-section-title {
+    margin-bottom: 10px;
+    color: #ffaa00;
+    text-shadow: 0 0 5px #ffaa00;
+}
+
+/* START: MODIFIED BLOCK */
+#game-type-selector,
+#player-count-selector,
+#two-player-mode-selector,
+#difficulty-selector,
+#flight-model-selector, /* ADDED */
+#control-scheme-selector,
+#shield-mode-selector,
+#enemy-fire-effect-selector,
+#primary-color-mode-selector,
+#monochrome-type-selector,
+#crt-shader-selector,
+#film-grain-selector,
+#jitter-selector,
+#starfield-selector,
+/* IDs for pause menu selectors */
+#pause-difficulty-selector,
+#pause-flight-model-selector, /* ADDED */
+#pause-shield-mode-selector,
+#pause-enemy-fire-effect-selector,
+#pause-primary-color-mode-selector,
+#pause-monochrome-type-selector,
+#pause-crt-shader-selector,
+#pause-film-grain-selector,
+#pause-jitter-selector,
+#pause-starfield-selector {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+/* END: MODIFIED BLOCK */
+
+.menu-btn {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 500;
+    font-size: 1.3em;
+    padding: 8px 16px;
+    background-color: transparent;
+    cursor: pointer;
+    transition: all 0.3s;
+    width: 350px;
+}
+
+.menu-section .menu-btn {
+    border: 2px solid #ffaa00;
+    color: #ffaa00;
+    text-shadow: 0 0 5px #ffaa00;
+}
+
+.menu-section .menu-btn.chosen {
+    background-color: #ffaa00;
+    color: #0d021a;
+    text-shadow: none;
+}
+
+#startButton,
+#gameplaySettingsButton,
+#videoSettingsButton,
+#controlsSettingsButton,
+#soundSettingsButton,
+#dailyChallengeButton,
+#gameplayBackButton,
+#videoBackButton,
+#controlsBackButton,
+#campaignBackButton,
+#campaign-slot-1, 
+#campaign-slot-2, 
+#campaign-slot-3,
+#backButton,
+#alert-ok-button {
+    margin-top: 10px;
+    font-size: 1.5em;
+    padding: 10px 20px;
+    border: 2px solid #00ffff;
+    color: #00ffff;
+    text-shadow: 0 0 5px #00ffff;
+}
+
+#gameplaySettingsButton,
+#videoSettingsButton,
+#controlsSettingsButton,
+#soundSettingsButton,
+#dailyChallengeButton {
+    font-size: 1.3em;
+    width: 350px;
+}
+
+#saveGameplayButton, #defaultsGameplayButton,
+#saveVideoButton, #defaultsVideoButton,
+#saveControlsButton, #defaultsControlsButton,
+#saveSoundButton, #defaultsSoundButton,
+/* Pause Menu Done Buttons */
+#pause-graphics-done,
+#pause-sound-done,
+#pause-gameplay-done {
+    font-size: 1.1em;
+    width: 350px;
+    margin-top: 10px;
+    padding: 8px 16px;
+    border-color: #7fff00;
+    color: #7fff00;
+    text-shadow: 0 0 5px #7fff00;
+}
+
+#gameplayBackButton,
+#videoBackButton,
+#backButton,
+#campaignBackButton,
+#controlsBackButton,
+#alert-ok-button {
+    margin-top: 30px;
+}
+
+.menu-btn.selected,
+.slider-container.selected {
+    border-color: #00ffff !important;
+    animation: pulse-glow 1.5s ease-in-out infinite alternate;
+}
+
+#startButton:disabled {
+    cursor: wait;
+    opacity: 0.5;
+}
+
+.slider-container {
+    margin-bottom: 20px;
+    width: 350px;
+    border: 2px solid #ffaa00;
+    padding: 8px 16px;
+    box-sizing: border-box;
+    background-color: transparent;
+    transition: border-color 0.3s;
+}
+.slider-container label {
+    font-size: 1.2em;
+    color: #ffaa00;
+    text-shadow: 0 0 5px #ffaa00;
+    display: flex;
+    justify-content: space-between;
+}
+.slider-container label .value-text {
+    color: #00ffff;
+}
+.slider-wrapper {
+    width: 100%;
+    height: 25px;
+    border: 2px solid #ffaa00;
+    background-color: rgba(0, 0, 0, 0.3);
+    margin-top: 5px;
+    position: relative;
+}
+.slider-fill {
+    height: 100%;
+    background-color: #ffaa00;
+}
+.custom-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    position: absolute;
+    top: 0;
+    left: 0;
+    margin: 0;
+    cursor: pointer;
+}
+.custom-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 10px;
+    height: 30px;
+    background: #00ffff;
+    box-shadow: 0 0 8px #00ffff;
+    border: 1px solid white;
+    transition: background-color 0.2s, box-shadow 0.2s;
+}
+.custom-slider::-moz-range-thumb {
+    width: 10px;
+    height: 30px;
+    background: #00ffff;
+    box-shadow: 0 0 8px #00ffff;
+    border: 1px solid white;
+    transition: background-color 0.2s, box-shadow 0.2s;
+}
+.volume-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    text-shadow: 1px 1px 2px black;
+    pointer-events: none;
+}
+
+.slider-container.editing .custom-slider::-webkit-slider-thumb {
+    background-color: #ff00ff;
+    box-shadow: 0 0 15px #ff00ff;
+}
+.slider-container.editing .custom-slider::-moz-range-thumb {
+    background-color: #ff00ff;
+    box-shadow: 0 0 15px #ff00ff;
+}
+
+#high-score-list-container {
+    margin-top: 30px;
+    color: #7fff00;
+}
+#high-score-list-container h2 {
+    font-size: 1.5em;
+    text-shadow: 0 0 5px #7fff00;
+    margin-bottom: 10px;
+}
+#high-score-list {
+    columns: 2;
+    column-gap: 30px;
+    list-style-type: decimal;
+    list-style-position: inside;
+    padding: 0;
+    margin: 0 auto;
+    max-width: 550px;
+    text-align: left;
+    font-size: 1.1em;
+    line-height: 1.6;
+}
+#high-score-list li {
+    text-shadow: 0 0 3px #7fff00;
+}
+
+.glitch-effect {
+    position: relative;
+}
+.glitch-effect::before,
+.glitch-effect::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    clip-path: inset(0 0 0 0);
+}
+.glitch-effect::before {
+    text-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff;
+    color: #ff00ff;
+    animation: glitch-burst-1 9s infinite linear;
+    z-index: -1;
+}
+.glitch-effect::after {
+    text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff;
+    color: #00ffff;
+    animation: glitch-burst-2 7s infinite linear;
+    z-index: -2;
+}
+@keyframes glitch-burst-1 {
+    0%, 97% { transform: translate(0, 0); clip-path: inset(0 0 0 0); }
+    97.5% { transform: translate(-5px, 2px); clip-path: inset(40% 0 45% 0); }
+    98% { transform: translate(5px, -3px); clip-path: inset(80% 0 5% 0); }
+    98.5% { transform: translate(-3px, 4px); clip-path: inset(20% 0 60% 0); }
+    99% { transform: translate(6px, -1px); clip-path: inset(55% 0 10% 0); }
+    99.5% { transform: translate(-7px, 0); clip-path: inset(0 0 0 0); }
+    100% { transform: translate(0, 0); clip-path: inset(0 0 0 0); }
+}
+@keyframes glitch-burst-2 {
+    0%, 98% { transform: translate(0, 0); clip-path: inset(0 0 0 0); }
+    98.5% { transform: translate(4px, -3px); clip-path: inset(0 0 70% 0); }
+    99% { transform: translate(-6px, 1px); clip-path: inset(40% 0 20% 0); }
+    99.5% { transform: translate(8px, -2px); clip-path: inset(75% 0 0 0); }
+    100% { transform: translate(0, 0); clip-path: inset(0 0 0 0); }
+}
+
+#music-attribution {
+    position: absolute;
+    bottom: 10px;
+    width: 100%;
+    text-align: center;
+    font-size: 0.7em;
+    color: #7fff00;
+    text-shadow: 0 0 3px #7fff00;
+    line-height: 1.4;
+}
+
+#alert-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    background-color: rgba(13, 2, 26, 0.95);
+    z-index: 2000;
+}
+
+#alert-title {
+    font-size: 2.5em;
+    color: #ffaa00;
+    text-shadow: 0 0 10px #ffaa00;
+}
+
+#alert-message {
+    font-size: 1.2em;
+    color: #00ffff;
+    margin-top: 20px;
+    max-width: 500px;
+    line-height: 1.6;
+}
+
+@keyframes pulse-glow {
+    from { box-shadow: 0 0 12px #00ffff; }
+    to { box-shadow: 0 0 22px #00ffff, 0 0 5px #fff; }
+}
+
+@keyframes pulse-glow-orange {
+    from { text-shadow: 0 0 10px #ffaa00, 0 0 20px #ffaa00; }
+    to   { text-shadow: 0 0 20px #ffaa00, 0 0 35px #ffaa00; }
+}
+
+#menu-overlay {
+    position: fixed;
+    /* "inset: 0" is a modern shorthand for top, right, bottom, and left all set to 0 */
+    inset: 0;
+    /* A semi-transparent version of your background color */
+    background-color: rgba(13, 2, 26, 0.6);
+    /* This creates the cool "frosted glass" effect on supported browsers */
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px); /* For Safari */
+    /* Must be lower than the pop-up menu (z-index: 100) but higher than everything else */
+    z-index: 99;
+}
+#slot-action-menu .menu-btn {
+    border: 2px solid #00ffff;
+    color: #00ffff;
+    text-shadow: 0 0 5px #00ffff;
+    margin-top: 10px;
+    font-size: 1.5em;
+    padding: 10px 20px;
+}
